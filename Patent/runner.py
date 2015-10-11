@@ -222,8 +222,9 @@ def write_database_to_excel():
 
     def get_count_expression_for_patent(company, year, category):
         if year >= 2005:
-            pre_filter = Patent.objects.all().dates('apply_at', 'year').\
-                filter(apply_at__year=year).filter(company=company, type=category)
+            pre_filter = Patent.objects.filter(apply_at__lt=('%s-01-01' % (year+1)),
+                                               apply_at__gte=('%s-01-01' % year))\
+                .filter(company=company, type=category)
         else:
             pre_filter = Patent.objects.all()\
                 .filter(apply_at__lt=('%s-01-01' % (year + 1))).filter(company=company, type=category)
