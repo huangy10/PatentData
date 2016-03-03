@@ -14,7 +14,8 @@ from django.utils import timezone
 from django.db import models
 from tornado import httpclient, gen, ioloop, queues
 from bs4 import BeautifulSoup
-sys.path.extend(['/Users/Lena/Project/Python/Spider/PatentData'])
+sys.path.extend([os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir, os.pardir))])
+# sys.path.extend(['/Users/Lena/Project/Python/Spider/PatentData'])
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PatentData.settings')
 application = get_wsgi_application()
 
