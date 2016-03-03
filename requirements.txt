@@ -1,0 +1,5 @@
+django==1.8.1
+tornado==4.2.1
+xlrd==0.9.3
+xlwt==1.0.0
+beautifulsoup4==4.3.2

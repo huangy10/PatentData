@@ -183,7 +183,11 @@ def main():
     # first make sure that all the company data are loaded
     print '###############爬虫启动！##################'
     print '从Excel文件中载入公司数据'
-    load_company_list(os.path.join(settings.BASE_DIR, 'Patent', 'data', 'companies.xlsx'))
+    default_path = os.path.join(settings.BASE_DIR, 'Patent', 'data', 'companies.xlsx')
+    path_option = raw_input("默认输入文件路径是%s,是否使用其他输入文件(y/[n])")
+    if path_option in ["y", "Y"]:
+        default_path = raw_input("输入文件路径:").strip()
+    load_company_list(default_path)
     print '载入完成'
     # Since the company number is not so large, load them into the queue
     print '将数据载入队列等待处理'
