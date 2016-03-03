@@ -6,6 +6,7 @@ import datetime
 import re
 import time
 import random
+import sys
 
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
@@ -13,7 +14,7 @@ from django.utils import timezone
 from django.db import models
 from tornado import httpclient, gen, ioloop, queues
 from bs4 import BeautifulSoup
-
+sys.path.extend(['/Users/Lena/Project/Python/Spider/PatentData'])
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PatentData.settings')
 application = get_wsgi_application()
 
@@ -165,6 +166,18 @@ def search_for_company(company, skip=0):
 
 @gen.coroutine
 def main():
+    # 读取一些配置信息
+    company_num = Company.objects.all().count()
+    patent_num = Patent.objects.all().count()
+    if company_num > 0 or patent_num > 0:
+        print("数据库中已有%s家公司的%s条专利数据" % (company_num, patent_num))
+        print("\n\n")
+        clear_old_data = raw_input("是否清除已有的数据(y/[n])")
+        if clear_old_data in ["y", "Y"]:
+            Company.objects.all().delete()
+            Patent.objects.all().delete()
+            print("已清除原有数据!")
+            print("\n\n\n\n\n")
     global total_companies_num
     # first make sure that all the company data are loaded
     print '###############爬虫启动！##################'
@@ -213,6 +226,8 @@ def main():
         worker(i)
     yield companies_pool.join()
     print '###############爬虫停止！##################'
+    print '##########数据导出到output.xlsx############'
+    write_database_to_excel()
 
 
 def write_database_to_excel():
