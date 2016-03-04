@@ -31,6 +31,7 @@ companies_pool = queues.Queue()
 
 total_companies_num = 0
 fetched_companies_num = 0
+failed_companies_num = 0
 
 user_agents = ['Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50',
                'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50,'
@@ -162,6 +163,9 @@ def search_for_company(company, skip=0):
             print '出现其他返回状态代码：%s -> %s' % (response.code, response.headers.get('Location', ''))
             print response.body
             time.sleep(10)
+            # 出现其他错误放弃
+            client.close()
+            raise gen.Return((False, 0, response.code))
     client.close()
     raise gen.Return((True, fetched_patent, None))
 
@@ -202,6 +206,7 @@ def main():
     @gen.coroutine
     def worker(worker_id):
         global fetched_companies_num
+        global failed_companies_num
 
         print 'WORKER %s START!' % worker_id
         finished = True
@@ -219,6 +224,14 @@ def main():
                     print u'】WORKER %s 进入休眠，本轮休眠时间为：%s' % (worker_id, sleep_time)
                     time.sleep(sleep_time)  # If fails, sleep a random time
                     print u'】WORKER %s 恢复工作' % worker_id
+                else:
+                    # 其他原因
+                    code_error_times = 0
+                    companies_pool.task_done()
+                    failed_companies_num += 1
+                    total_companies_num -= 1
+                    finished = True
+                    print u"对【%s】的专利数据查询失败,目前失败总数为%s" % (next_company.name, failed_companies_num)
             else:
                 code_error_times = 0
                 fetched_companies_num += 1
