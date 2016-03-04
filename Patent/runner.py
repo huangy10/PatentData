@@ -121,7 +121,7 @@ def search_for_company(company, skip=0):
     """
     print u'->开始搜索：%s' % company.name
     fetched_patent = skip
-    start_url = base_url % company.name
+    start_url = base_url % company.name.strip()
     # cookie = 'patentids=; domain=.soopat.com; expires=%s GMT; path=/' %\
     #          (timezone.now() + datetime.timedelta(seconds=60)).strftime('%a, %d-%b-%Y %H-%M-%S')
     cookie = 'lynx-randomcodestring=; patentids='
@@ -160,6 +160,7 @@ def search_for_company(company, skip=0):
             break
         else:
             print '出现其他返回状态代码：%s -> %s' % (response.code, response.headers.get('Location', ''))
+            print response.body
             time.sleep(10)
     client.close()
     raise gen.Return((True, fetched_patent, None))
