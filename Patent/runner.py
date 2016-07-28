@@ -207,6 +207,7 @@ def main():
     def worker(worker_id):
         global fetched_companies_num
         global failed_companies_num
+        global total_companies_num
 
         print 'WORKER %s START!' % worker_id
         finished = True
