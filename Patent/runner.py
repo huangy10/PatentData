@@ -52,7 +52,7 @@ def load_company_list(file_path, company_name_col_index=2, skip_rows=1):
         if created:
             new_company += 1
 
-    print u'{0}个公司的数据已经被存入数据库，其中新建的有{1}个'.format(nrows-1, new_company)
+    print '{0}个公司的数据已经被存入数据库，其中新建的有{1}个'.format(nrows-1, new_company)
 
 
 @gen.coroutine
@@ -63,7 +63,7 @@ def parse_data_for_html(html_doc, company):
     # 首先检查是否遇到了验证码问题
     check = soup.find_all('img', {'src': '/Account/ValidateImage'})
     if check is not None and len(check) > 0:
-        print u'~~~~~~~~~~遇到验证码问题'
+        print '~~~~~~~~~~遇到验证码问题'
         raise gen.Return(-1)
     patent_blocks = soup.find_all('div', {'class': 'PatentBlock', 'style': None})
     for patent_block in patent_blocks:
@@ -134,7 +134,7 @@ def search_for_company(company, skip=0):
             request_url = start_url
         print u'开始发送访问请求：%s' % request_url
 
-        print u'cookie::' + cookie
+        print 'cookie::' + cookie
         request = httpclient.HTTPRequest(url=request_url,
                                          headers={'Cookie': cookie,
                                                   'User-Agent': random.choice(user_agents)},
@@ -152,15 +152,15 @@ def search_for_company(company, skip=0):
                 raise gen.Return((False, fetched_patent, 'authenticate code'))
             fetched_patent += new_patents
             sleep_time = random.uniform(2, 10)
-            print u'正常工作间隔%s' % sleep_time
+            print '正常工作间隔%s' % sleep_time
             time.sleep(sleep_time)
             print response.headers
             cookie = response.headers.get('Set-Cookie', '')
         elif response.code == 500:
-            print u'遇到500错误，完成对当前条目的搜索'
+            print '遇到500错误，完成对当前条目的搜索'
             break
         else:
-            print u'出现其他返回状态代码：%s -> %s' % (response.code, response.headers.get('Location', ''))
+            print '出现其他返回状态代码：%s -> %s' % (response.code, response.headers.get('Location', ''))
             print response.body
             time.sleep(10)
             # 出现其他错误放弃
@@ -176,32 +176,32 @@ def main():
     company_num = Company.objects.all().count()
     patent_num = Patent.objects.all().count()
     if company_num > 0 or patent_num > 0:
-        print(u"数据库中已有%s家公司的%s条专利数据" % (company_num, patent_num))
+        print("数据库中已有%s家公司的%s条专利数据" % (company_num, patent_num))
         print("\n\n")
-        clear_old_data = raw_input(u"是否清除已有的数据(y/[n])")
+        clear_old_data = raw_input("是否清除已有的数据(y/[n])")
         if clear_old_data in ["y", "Y"]:
             Company.objects.all().delete()
             Patent.objects.all().delete()
-            print(u"已清除原有数据!")
-            print(u"\n\n\n\n\n")
+            print("已清除原有数据!")
+            print("\n\n\n\n\n")
     global total_companies_num
     # first make sure that all the company data are loaded
-    print u'###############爬虫启动！##################'
-    print u'从Excel文件中载入公司数据'
+    print '###############爬虫启动！##################'
+    print '从Excel文件中载入公司数据'
     default_path = os.path.join(settings.BASE_DIR, 'Patent', 'data', 'companies.xlsx')
-    path_option = raw_input(u"默认输入文件路径是%s,是否使用其他输入文件(y/[n])")
+    path_option = raw_input("默认输入文件路径是%s,是否使用其他输入文件(y/[n])")
     if path_option in ["y", "Y"]:
-        default_path = raw_input(u"输入文件路径:").strip()
+        default_path = raw_input("输入文件路径:").strip()
     load_company_list(default_path)
-    print u'载入完成'
+    print '载入完成'
     # Since the company number is not so large, load them into the queue
-    print u'将数据载入队列等待处理'
+    print '将数据载入队列等待处理'
 
     for c in Company.objects.filter(checked=False):
         yield companies_pool.put(c)
         total_companies_num += 1
 
-    print u'载入完成，开始爬取数据，本次需要爬取的公司总数为: %s' % total_companies_num
+    print '载入完成，开始爬取数据，本次需要爬取的公司总数为: %s' % total_companies_num
 
     @gen.coroutine
     def worker(worker_id):
@@ -209,7 +209,7 @@ def main():
         global failed_companies_num
         global total_companies_num
 
-        print u'WORKER %s START!' % worker_id
+        print 'WORKER %s START!' % worker_id
         finished = True
         skip = 0
         code_error_times = 0        # 连续发生验证码阻碍的次数
@@ -245,8 +245,8 @@ def main():
     for i in range(1):
         worker(i)
     yield companies_pool.join()
-    print u'###############爬虫停止！##################'
-    print u'##########数据导出到output.xlsx############'
+    print '###############爬虫停止！##################'
+    print '##########数据导出到output.xlsx############'
     write_database_to_excel()
 
 
@@ -283,7 +283,7 @@ def write_database_to_excel():
         sheet.write(0, index+2, 'WG%s' % year)
 
     for k, c in enumerate(companies):
-        print u'Writing[%s]: %s' % (k, c.name)
+        print 'Writing[%s]: %s' % (k, c.name)
         i = k + 1
         sheet.write(i, 0, i)                # 序号
         sheet.write(i, 1, c.name)           # 公司名称
@@ -291,7 +291,7 @@ def write_database_to_excel():
             sheet.write(i, index, get_count_expression_for_patent(c, year, 'FM'))
             sheet.write(i, index+1, get_count_expression_for_patent(c, year, 'SY'))
             sheet.write(i, index+2, get_count_expression_for_patent(c, year, 'WG'))
-    print u'finished'
+    print 'finished'
     book.save(os.path.join(settings.BASE_DIR, 'Patent', 'data', 'output.xlsx'))
 
 
