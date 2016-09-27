@@ -7,3 +7,4 @@
 运行是，设置好PYTHON_PATH环境变量，具体方法为
 
 	export PYTHON_PATH = "$PYTHON:path/to/project"
+
